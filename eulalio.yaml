@@ -1,0 +1,78 @@
+esphome:
+  name: eulalio32
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+    # type: esp-idf
+
+# Enable logging
+logger:
+  # level: VERBOSE
+  #hardware_uart: UART0
+
+# Enable Home Assistant API
+# api:
+#   password: ""
+#   services:
+#     - service: mhz19_calibrate_zero
+#       then:
+#         - mhz19.calibrate_zero: mh19b_id
+
+ota:
+  password: !secret eulalio_ota
+
+wifi:
+  networks:
+    - ssid: "JMC  INTRANET"
+      password: !secret jmcintranet
+    - ssid: "sercommBB2522"
+      password: !secret sercomm
+    - ssid: "COSMOPOLITAN"
+      password: !secret cosmo_elche
+    - ssid: "WIFI_SANITAT"
+      password: !secret hospital_general
+    - ssid: "Ortices"
+      password: !secret oficina_ortices
+    - ssid: "JM.Wifi"
+      password: !secret oficina_padre   
+    - ssid: "Vicenteiph"
+      password: !secret vicenteiph
+    - ssid: "iPhoneXdeSol"
+      password: !secret sol14
+      
+      
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Eulalio32 Fallback Hotspot"
+    password: !secret fallback_pw
+
+captive_portal:
+
+
+# uart:
+
+
+sensor:
+  - platform: dht
+    pin: GPIO2
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+    model: "DHT22"
+    update_interval: 60s
+
+switch:
+
+web_server:
+  port: 80
+  version: 2
+
+mqtt:
+  broker: !secret mqtt_broker
+  # username: livingroom
+  # password: !secret mqtt_password
+  discovery_prefix: homeassistant_vic_mac

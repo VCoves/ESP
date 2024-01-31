@@ -1,0 +1,178 @@
+esphome:
+  name: esp32
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+    # type: esp-idf
+
+# Enable logging
+logger:
+  # level: VERBOSE
+  #hardware_uart: UART0
+
+# Enable Home Assistant API
+# api:
+#   password: ""
+#   services:
+#     - service: mhz19_calibrate_zero
+#       then:
+#         - mhz19.calibrate_zero: mh19b_id
+
+ota:
+  password: !secret eusebio_ota
+
+wifi:
+  networks:
+    - ssid: "JMC  INTRANET"
+      password: !secret jmcintranet
+    - ssid: "sercommBB2522"
+      password: !secret sercomm
+    - ssid: "COSMOPOLITAN"
+      password: !secret cosmo_elche
+    - ssid: "WIFI_SANITAT"
+      password: !secret hospital_general
+    - ssid: "Ortices"
+      password: !secret oficina_ortices
+    - ssid: "JM.Wifi"
+      password: !secret oficina_padre   
+    - ssid: "Vicenteiph"
+      password: !secret vicenteiph
+    - ssid: "iPhoneXdeSol"
+      password: !secret sol14
+      
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32 Fallback Hotspot"
+    password: !secret fallback_pw
+
+captive_portal:
+
+
+uart:
+  #- rx_pin: GPIO3
+  #  tx_pin: GPIO1
+  #  baud_rate: 9600
+  #  id: uart_co2
+  - rx_pin: 16
+    tx_pin: 17
+    baud_rate: 9600
+    id: uart_pms
+
+  - rx_pin: 3
+    tx_pin: 1
+    baud_rate: 9600
+    id: uart_co2
+
+sensor:
+  - platform: pmsx003
+    type: PMSX003
+    pm_1_0:
+      name: "Particulate Matter <1.0µm Concentration"
+    pm_2_5:
+      name: "Particulate Matter <2.5µm Concentration"
+    pm_10_0:
+      name: "Particulate Matter <10.0µm Concentration"
+    pm_0_3um: 
+      name: "PM < 0.3um / 0.1L"
+    pm_0_5um: 
+      name: "PM < 0.5um / 0.1L"
+    pm_1_0um: 
+      name: "PM < 1.0um / 0.1L"
+    pm_2_5um: 
+      name: "PM < 2.5um / 0.1L"
+    pm_5_0um: 
+      name: "PM < 5.0um / 0.1L"
+    pm_10_0um: 
+      name: "PM < 10.0um / 0.1L"
+    update_interval: 179s
+    uart_id: uart_pms
+
+  - platform: mhz19
+    co2:
+      name: "MH-Z19 CO2 Value"
+    temperature:
+      name: "MH-Z19 Temperature"
+    update_interval: 60s
+    automatic_baseline_calibration: true
+    uart_id: uart_co2
+    id: mh19b_id
+
+
+switch:
+  - platform: template
+    name: "MH-Z19 calib zero"
+    optimistic: true
+    on_turn_on:
+       then:
+        - mhz19.calibrate_zero: mh19b_id
+
+  - platform: template
+    name: "Living Room MH-Z19C Auto Calibrate"
+    optimistic: true
+    on_turn_on:
+      mhz19.abc_enable: mh19b_id
+    on_turn_off:
+      mhz19.abc_disable: mh19b_id 
+
+web_server:
+  port: 80
+  version: 2
+
+mqtt:
+  broker: !secret mqtt_broker
+  discovery_prefix: homeassistant_vic_mac
+  # username: livingroom
+  # password: !secret mqtt_password
+
+# i2c:
+#   sda: 21
+#   scl: 22
+
+# display:
+#   - platform: ssd1306_i2c
+#     model: "SSD1306 128x32"
+#     #reset_pin: D0
+#     address: 0x3C
+#     lambda: |-
+#       it.line(0, 0, 0, 31);
+#       it.line(72, 0, 72, 33);
+#       it.line(0, 31, 127, 31);
+#       it.line(127, 31, 127, 0);
+#       it.line(127, 0, 0, 0);
+#       it.line(31, 0, 31, 28);
+#       it.line(64, 0, 64, 29);
+#     update_interval: 3s
+    #  it.print(0, 0, id(font22), "Hello World!");
+# font:
+#   - file: "amiko.ttf"
+#     id: font22
+#     size: 10
+#   - file: "amiko.ttf"
+#     id: font1
+#     size: 10
+#   - file: "amiko.ttf"
+#     id: font2
+#     size: 14
+
+#     # rx_pin: GPIO17
+#     # tx_pin: GPIO16
+#   rx_pin: GPIO3
+#   tx_pin: GPIO1
+#   baud_rate: 9600
+#   id: uart_pms
+
+# sensor:
+#   - platform: pmsx003
+#     type: PMSX003
+#     pm_1_0:
+#       name: "Particulate Matter <1.0µm Concentration"
+#     pm_2_5:
+#       name: "Particulate Matter <2.5µm Concentration"
+#     pm_10_0:
+#       name: "Particulate Matter <10.0µm Concentration"
+#     # update_interval: 30s
+#     uart_id: uart_pms
+
+
